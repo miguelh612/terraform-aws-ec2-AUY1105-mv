@@ -1,7 +1,8 @@
 # ─── SECURITY GROUP — EC2 ──────────────────────────────────────────────────────
 # HTTP solo desde el ALB; SSH desde Internet (ajustar según necesidad)
+
 resource "aws_security_group" "web" {
-  name        = "test01-sg-web"
+  name        = var.ec2_security_group_name
   description = "Permite trafico HTTP desde el ALB y SSH"
   vpc_id      = aws_vpc.main.id
 
@@ -10,7 +11,7 @@ resource "aws_security_group" "web" {
     from_port   = 22
     to_port     = 22
     protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
+    cidr_blocks = [var.public_cidr_block]
   }
 
   ingress {
@@ -25,7 +26,7 @@ resource "aws_security_group" "web" {
     from_port   = 0
     to_port     = 0
     protocol    = "-1"
-    cidr_blocks = ["0.0.0.0/0"]
+    cidr_blocks = [var.public_cidr_block]
   }
 
   tags = {
@@ -34,9 +35,10 @@ resource "aws_security_group" "web" {
 }
 
 # ─── EC2 INSTANCE ──────────────────────────────────────────────────────────────
+
 resource "aws_instance" "web" {
-  ami                    = "ami-0c02fb55956c7d316" # Amazon Linux 2 (us-east-1)
-  instance_type          = "t2.micro"
+  ami                    = var.ec2_ami_id
+  instance_type          = var.ec2_instance_type
   subnet_id              = aws_subnet.public.id
   vpc_security_group_ids = [aws_security_group.web.id]
 
