@@ -4,7 +4,7 @@
 resource "aws_security_group" "web" {
   name        = var.ec2_security_group_name
   description = "Permite trafico HTTP desde el ALB y SSH"
-  vpc_id      = aws_vpc.main.id
+  vpc_id      = var.vpc_id
 
   ingress {
     description = "SSH"
@@ -19,7 +19,7 @@ resource "aws_security_group" "web" {
     from_port       = 80
     to_port         = 80
     protocol        = "tcp"
-    security_groups = [aws_security_group.alb.id]
+    security_groups = [var.alb_security_group_id]
   }
 
   egress {
@@ -39,7 +39,7 @@ resource "aws_security_group" "web" {
 resource "aws_instance" "web" {
   ami                    = var.ec2_ami_id
   instance_type          = var.ec2_instance_type
-  subnet_id              = aws_subnet.public.id
+  subnet_id              = var.public_subnet_id
   vpc_security_group_ids = [aws_security_group.web.id]
 
   user_data = <<-EOF
